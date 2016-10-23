@@ -5,23 +5,13 @@
 use std::os::raw::{c_void, c_int, c_uchar};
 use std::mem::transmute;
 
-struct MyApp {
-    app: Application,
+struct MyTool {
     button: PushButton,
 }
 
-
-extern "C" fn callback(target: *mut c_void) {
-    unsafe {
-        let app = target as *mut MyApp; 
-        (*app).button_callback();
-    }
-}
-
-impl MyApp {
-    fn new() -> Box<MyApp> {
-        Box::new(MyApp {
-            app: Application::new(),
+impl MyTool {
+    fn new() -> Box<MyTool> {
+        Box::new(MyTool {
             button: PushButton::new(),
         })
     }
@@ -45,18 +35,23 @@ macro_rules! connect_no_args {
                 }
             }
 
-            connect($p_name, $data, temp_call);
+            unsafe {
+                let object = (*(*$p_name.widget).base).o;
+                connect(object, $data, temp_call);
+            }
         }
     }
 }
 
 
 fn main() {
-    let my_app = MyApp::new();
+    let app = Application::new();
 
-    connect_no_args!(&my_app.button, &my_app, MyApp, MyApp::button_callback); 
+    let tool = MyTool::new();
 
-    my_app.app.run();
+    connect_no_args!(&tool.button, &tool, MyTool, MyTool::button_callback); 
+
+    app.run();
 }
 
 pub struct Application {
@@ -64,7 +59,7 @@ pub struct Application {
 }
 
 pub struct PushButton {
-    button: *const GUPushButton,
+    widget: *const GUPushButton,
 }
 
 impl PushButton {
@@ -72,7 +67,7 @@ impl PushButton {
         unsafe {
             let ui = wrui_get();
             PushButton {
-                button: ((*ui).push_button_create)(b"Test\0" as *const u8),
+                widget: ((*ui).push_button_create)(b"Test\0" as *const u8),
             }
         }
     }
@@ -96,9 +91,9 @@ impl Application {
 }
 
 
-pub fn connect<D>(ctrl: &PushButton, data: &D, fun: extern fn(*mut c_void)) {
+pub fn connect<D>(object: *const GUObject, data: &D, fun: extern fn(*mut c_void)) {
     unsafe {
-        let object = (*(*ctrl.button).base).o;
+        //let object = (*(*ctrl.button).base).o;
         ((*object).connect)(object as *const c_void, b"dummy\0" as *const c_uchar, transmute(data), fun);
     }
 }
