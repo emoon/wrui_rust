@@ -267,7 +267,7 @@ pub struct WUPainter {
     pub create_font: ::std::option::Option<unsafe extern "C" fn()
                                                -> *mut WUFont>,
     pub draw_text: ::std::option::Option<unsafe extern "C" fn(painter:
-                                                                  *mut WUPainter,
+                                                                  *const WUPainter,
                                                               pos: WUPos,
                                                               color: WUColor,
                                                               text:
@@ -277,7 +277,7 @@ pub struct WUPainter {
                                                               font:
                                                                   *const WUFont)>,
     pub draw_rect: ::std::option::Option<unsafe extern "C" fn(painter:
-                                                                  *mut WUPainter,
+                                                                  *const WUPainter,
                                                               rect: WURect,
                                                               color:
                                                                   WUColor)>,

@@ -1,8 +1,43 @@
 extern crate libloading;
 mod ffi;
 
+pub use ffi::WURect as Rect;
+pub use ffi::WUPos as Pos;
+pub use ffi::WUColor as Color;
+
 use libloading::{Library, Symbol};
 use std::rc::Rc;
+
+impl Color {
+    pub fn new(r: f32, g: f32, b: f32, a: f32) -> Color {
+        Color {
+            r: r,
+            g: g,
+            b: b,
+            a: a,
+        }
+    }
+}
+
+impl Pos {
+    pub fn new(x: f32, y: f32) -> Pos {
+        Pos {
+            x: x,
+            y: y,
+        }
+    }
+}
+
+impl Rect {
+    pub fn new(x: f32, y: f32, width: f32, height: f32) -> Rect {
+        Rect {
+            x: x,
+            y: y,
+            width: width,
+            height: height,
+        }
+    }
+}
 
 pub struct Wrui {
     lib: Rc<libloading::Library>,
@@ -13,6 +48,24 @@ pub struct Wrui {
 pub struct Window {
     pub wu_window: *const ffi::WUWindow,
     pub c_api: *const ffi::Wrui,
+}
+
+pub struct Painter {
+    painter: *const ffi::WUPainter,
+}
+
+impl Painter {
+    pub fn draw_rect(&self, rect: Rect, color: Color) {
+        unsafe {
+            (*self.painter).draw_rect.unwrap()(self.painter, rect, color);
+        }
+    }
+
+    pub fn draw_text(&self, pos: Pos, color: Color, text: &str) {
+        unsafe {
+            (*self.painter).draw_text.unwrap()(self.painter, pos, color, text.as_ptr() as *const i8, text.len() as i32, std::ptr::null());
+        }
+    }
 }
 
 #[macro_export]
@@ -48,6 +101,12 @@ impl Wrui {
                 c_api: wrui_get(),
                 wu_app: (*c_api).application_create.unwrap()(),
             })
+        }
+    }
+
+    pub fn get_painter(&self) -> Painter {
+        Painter {
+            painter: unsafe { (*self.c_api).painter_get.unwrap()() },
         }
     }
 

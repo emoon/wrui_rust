@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate wrui;
 
-use wrui::{Wrui, Window};
+use wrui::{Wrui, Window, Pos, Color};
 
 struct TestApp<'a> {
     wrui: &'a Wrui,
@@ -21,7 +21,12 @@ impl<'a> TestApp<'a> {
     }
 
     pub fn paint_event(&mut self) {
+        let painter = self.wrui.get_painter();
+
+        painter.draw_text(Pos::new(10.0, 10.0), Color::new(1.0, 1.0, 0.0, 1.0), "test text!");
+
         println!("Paint event");
+
     }
 
     pub fn run(&self) {
