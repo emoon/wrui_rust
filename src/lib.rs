@@ -10,37 +10,24 @@ use std::rc::Rc;
 
 impl Color {
     pub fn new(r: f32, g: f32, b: f32, a: f32) -> Color {
-        Color {
-            r: r,
-            g: g,
-            b: b,
-            a: a,
-        }
+        Color { r: r, g: g, b: b, a: a }
     }
 }
 
 impl Pos {
     pub fn new(x: f32, y: f32) -> Pos {
-        Pos {
-            x: x,
-            y: y,
-        }
+        Pos { x: x, y: y }
     }
 }
 
 impl Rect {
     pub fn new(x: f32, y: f32, width: f32, height: f32) -> Rect {
-        Rect {
-            x: x,
-            y: y,
-            width: width,
-            height: height,
-        }
+        Rect { x: x, y: y, width: width, height: height }
     }
 }
 
 pub struct Wrui {
-    lib: Rc<libloading::Library>,
+    _lib: Rc<libloading::Library>,
     c_api: *const ffi::Wrui,
     wu_app: *const ffi::WUApplication,
 }
@@ -80,7 +67,7 @@ macro_rules! window_set_paint_event {
             }
 
             unsafe {
-                let window_funcs = (*(*$sender.c_api).window_funcs);
+                let window_funcs = *(*$sender.c_api).window_funcs;
                 window_funcs.set_paint_event.unwrap()($sender.wu_window, std::mem::transmute($data), temp_paint_event);
             }
         }
@@ -93,11 +80,11 @@ impl Wrui {
         unsafe {
             let wrui_get: Symbol<unsafe extern fn() -> *const ffi::Wrui> =
                 lib.get(b"wrui_get\0").unwrap();
-    
+
             let c_api = wrui_get();
 
             Some(Wrui {
-                lib: lib.clone(),
+                _lib: lib.clone(),
                 c_api: wrui_get(),
                 wu_app: (*c_api).application_create.unwrap()(),
             })
@@ -111,8 +98,8 @@ impl Wrui {
     }
 
     pub fn create_window(&self) -> Window {
-        let wu_window = unsafe { 
-            (*self.c_api).window_create.unwrap()(std::ptr::null_mut()) 
+        let wu_window = unsafe {
+            (*self.c_api).window_create.unwrap()(std::ptr::null_mut())
         };
 
         Window {

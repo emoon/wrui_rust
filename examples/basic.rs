@@ -23,7 +23,9 @@ impl<'a> TestApp<'a> {
     pub fn paint_event(&mut self) {
         let painter = self.wrui.get_painter();
 
-        painter.draw_text(Pos::new(10.0, 10.0), Color::new(1.0, 1.0, 0.0, 1.0), "test text!");
+        painter.draw_text(Pos::new(10.0, 10.0),
+                          Color::new(1.0, 1.0, 0.0, 1.0),
+                          "test text!");
 
         println!("Paint event");
 
@@ -37,7 +39,8 @@ impl<'a> TestApp<'a> {
 
 fn main() {
     // very temporary for now while testing
-    let wrui = Wrui::new("../wrui/t2-output/macosx-clang-debug-default/libwrui_dimgui.dylib").unwrap();
+    let wrui = Wrui::new("../wrui/t2-output/macosx-clang-debug-default/libwrui_dimgui.dylib")
+                   .unwrap();
 
     let mut app = TestApp::new(&wrui);
 
